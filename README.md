@@ -1,51 +1,99 @@
 <!---
 {
-  "depends_on": [],
+  "depends_on": ["https://github.com/STEMgraph/279a01d6-7696-46b7-9cb7-2c44773ad06b"],
   "author": "Stephan Bökelmann",
-  "first_used": "2025-03-17",
-  "keywords": ["learning", "exercises", "education", "practice"]
+  "first_used": "2025-04-01",
+  "keywords": ["scanf", "streams", "C", "input"]
 }
 --->
 
-# Learning Through Exercises
+# From `printf` to `scanf`: Reading Input from Streams
 
 ## 1) Introduction
-Learning by doing is one of the most effective methods to acquire new knowledge and skills. Rather than passively consuming information, actively engaging in problem-solving fosters deeper understanding and long-term retention. By working through structured exercises, students can grasp complex concepts in a more intuitive and applicable way. This approach is particularly beneficial in technical fields like programming, mathematics, and engineering.
 
-### 1.1) Further Readings and Other Sources
-- [The Importance of Practice in Learning](https://www.sciencedirect.com/science/article/pii/S036013151300062X)
-- "The Art of Learning" by Josh Waitzkin
-- [How to Learn Effectively: 5 Key Strategies](https://www.edutopia.org/article/5-research-backed-learning-strategies)
+In the [previous exercise](https://github.com/STEMgraph/279a01d6-7696-46b7-9cb7-2c44773ad06b), we used `fprintf` to write simple messages to the terminal. Now that we can send data **out**, it's time to learn how to get data **in**.
+
+In C, the most common function for reading input is `scanf`. It reads formatted data from `stdin` — the standard input stream, usually the keyboard.
+
+To really understand what `scanf` does, we’ll take a look at what happens behind the scenes on a lower level. Specifically, we’ll look at how Assembly and system calls perform the same kind of input operation.
+
+```asm
+01  section .bss
+02      buffer resb 32            ; reserve 32 bytes
+03
+04  section .text
+05      global _start
+06
+07  _start:
+08      mov     rax, 0            ; syscall: read
+09      mov     rdi, 0            ; file descriptor 0 = stdin
+10      mov     rsi, buffer       ; pointer to memory buffer
+11      mov     rdx, 32           ; max number of bytes to read
+12      syscall
+13
+14      ; syscall: exit
+15      mov     rax, 60
+16      xor     rdi, rdi
+17      syscall
+```
+
+This program reads up to 32 bytes from standard input and stores them in a buffer.
+
+- Lines 01–02 define a memory area where input can be stored.
+- Lines 08–12 prepare and invoke the `read` system call.
+- Line 09 uses file descriptor `0`, which corresponds to `stdin`.
+
+---
+
+As you already know, in POSIX systems, three standard streams are available to every process by default:
+
+| File Descriptor | Symbolic Name | Description |
+|-----------------|----------------|-------------|
+| `0`             | `stdin`        | Standard input (keyboard, file, or pipe) |
+| `1`             | `stdout`       | Standard output (terminal screen) |
+| `2`             | `stderr`       | Standard error output (also terminal) |
+
+These correspond directly to how `printf` and `scanf` interact with the outside world.
+
+Now let’s move from Assembly back to C. Here’s a minimal example that uses `scanf`:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    char name[32];
+
+    printf("Enter your name: ");
+    scanf("%31s", name);  // safe bounded input
+    printf("Hello, %s!\n", name);
+
+    return 0;
+}
+```
+
+This reads a single word (up to 31 characters) from the keyboard and prints it back to the screen.
+
+- `scanf("%31s", name)` ensures that the input won’t overflow the `name` buffer.
+- Input is taken from `stdin`, which typically means the keyboard.
+
 
 ## 2) Tasks
-1. **Write a Summary**: Summarize the concept of "learning by doing" in 3-5 sentences.
-2. **Example Identification**: List three examples from your own experience where learning through exercises helped you understand a topic better.
-3. **Create an Exercise**: Design a simple exercise for a topic of your choice that someone else could use to practice.
-4. **Follow an Exercise**: Find an online tutorial that includes exercises and complete at least two of them.
-5. **Modify an Existing Exercise**: Take a basic problem from a textbook or online course and modify it to make it slightly more challenging.
-6. **Pair Learning**: Explain a concept to a partner and guide them through an exercise without giving direct answers.
-7. **Review Mistakes**: Look at an exercise you've previously completed incorrectly. Identify why the mistake happened and how to prevent it in the future.
-8. **Time Challenge**: Set a timer for 10 minutes and try to solve as many simple exercises as possible on a given topic.
-9. **Self-Assessment**: Create a checklist to evaluate your own performance in completing exercises effectively.
-10. **Reflect on Progress**: Write a short paragraph on how this structured approach to exercises has influenced your learning.
 
-<details>
-  <summary>Tip for Task 5</summary>
-  Try making small adjustments first, such as increasing the difficulty slightly or adding an extra constraint.
-</details>
+1. **Use scanf**: Create a small program that asks for the user's name and age, then prints both.
+2. **Explore fgets**: Replace `scanf` with `fgets` and read a full line instead.
+3. **Compare to ASM**: Match the C code to the Assembly syscall behavior.
+
 
 ## 3) Questions
-1. What are the main benefits of learning through exercises compared to passive learning?
-2. How do exercises improve long-term retention?
-3. Can you think of a subject where learning through exercises might be less effective? Why?
-4. What role does feedback play in learning through exercises?
-5. How can self-designed exercises improve understanding?
-6. Why is it beneficial to review past mistakes in exercises?
-7. How does explaining a concept to someone else reinforce your own understanding?
-8. What strategies can you use to stay motivated when practicing with exercises?
-9. How can timed challenges contribute to learning efficiency?
-10. How do exercises help bridge the gap between theory and practical application?
+
+1. What does `scanf` do, and from where does it read by default?
+
+2. What are the risks of using `scanf("%s", ...)` without a length specifier?
+
+3. How is the `read` system call used in Assembly to receive input from `stdin`?
+
+4. What is the purpose of file descriptor `0`?
 
 ## 4) Advice
-Practice consistently and seek out diverse exercises that challenge different aspects of a topic. Combine exercises with reflection and feedback to maximize your learning efficiency. Don't hesitate to adapt exercises to fit your own needs and ensure that you're actively engaging with the material, rather than just going through the motions.
 
+Don’t stop at writing output — reading and processing input is what gives your programs real interactivity. Practice reading both from the terminal and from files. Always guard against buffer overflows by specifying maximum lengths in `scanf`, and use `fgets` when reading entire lines. Getting comfortable with streams and input handling is an essential skill in systems programming.
