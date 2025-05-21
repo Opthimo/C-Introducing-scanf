@@ -88,11 +88,19 @@ This reads a single word (up to 31 characters) from the keyboard and prints it b
 
 1. What does `scanf` do, and from where does it read by default?
 
+Scan reads the stream from the Standard Input of the OS
+
 2. What are the risks of using `scanf("%s", ...)` without a length specifier?
+
+If the text is longer than the buffer, the text will be cutted.
 
 3. How is the `read` system call used in Assembly to receive input from `stdin`?
 
+stes file descriptor to stin an points to the first adress of the input buffer,
+
 4. What is the purpose of file descriptor `0`?
+
+it's referes to the stdin
 
 ## 4) Advice
 
