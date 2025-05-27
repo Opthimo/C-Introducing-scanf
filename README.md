@@ -92,11 +92,11 @@ Scan reads the stream from the Standard Input of the OS
 
 2. What are the risks of using `scanf("%s", ...)` without a length specifier?
 
-If the text is longer than the buffer, the text will be cutted.
+If the text is longer than the buffer, the text will be cutted or overrunning the buffer and causing undefined behavior
 
 3. How is the `read` system call used in Assembly to receive input from `stdin`?
 
-stes file descriptor to stin an points to the first adress of the input buffer,
+sets file descriptor to stin an points to the first adress of the input buffer,
 
 4. What is the purpose of file descriptor `0`?
 
